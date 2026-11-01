@@ -21,7 +21,7 @@
 | **Họ và tên**       | Thạch Chí Vĩnh     |
 | **Lớp**             | DA23TTB            |
 | **Mã số sinh viên** | 110123063          |
-| **Ngành**           | Hệ thống thông tin |
+| **Ngành**           | Công nghệ thông tin|
 
 ## 2. Giới thiệu dự án
 
