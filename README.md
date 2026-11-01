@@ -157,7 +157,7 @@ Hệ thống hướng đến việc cung cấp trải nghiệm mua sắm thuận
 Clone repository:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/cvinh05n-art/cn-da23ttb-thachchivinh-HTTT-ChatbotAI.git
 ```
 
 Di chuyển vào thư mục Frontend:
