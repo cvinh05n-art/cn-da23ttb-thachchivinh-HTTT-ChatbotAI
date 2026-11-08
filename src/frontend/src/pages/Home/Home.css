@@ -658,4 +658,13 @@
     width: calc(100% - 24px);
     max-width: 340px;
   }
+  .header-actions a {
+  display: flex;
+  align-items: center;
+  color: var(--text-main);
+}
+
+.header-actions a:hover {
+  color: var(--accent);
+}
 }

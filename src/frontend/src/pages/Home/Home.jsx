@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Search,
   UserRound,
@@ -14,6 +15,8 @@ import {
 } from 'lucide-react';
 
 import './Home.css';
+
+
 
 const products = [
   {
@@ -124,13 +127,17 @@ function Home() {
               <Search size={20} />
             </button>
 
-            <button aria-label="Tài khoản">
-              <UserRound size={20} />
-            </button>
+            <Link to="/profile" aria-label="Tài khoản">
+             <UserRound size={20} />
+            </Link>
 
-            <button aria-label="Giỏ hàng">
-              <ShoppingBag size={20} />
-            </button>
+            <Link to="/wishlist" aria-label="Danh sách yêu thích">
+            <Heart size={20} />
+            </Link>
+
+            <a href="/cart" aria-label="Giỏ hàng">
+                <ShoppingBag size={20} />
+            </a>
           </div>
 
         </div>

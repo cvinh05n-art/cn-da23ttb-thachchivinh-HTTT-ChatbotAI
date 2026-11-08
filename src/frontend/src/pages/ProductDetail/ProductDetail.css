@@ -347,3 +347,26 @@
     height: 85px;
   }
 }
+/* BACK TO PRODUCTS */
+.back-to-products {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 20px 0 5px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.back-to-products:hover {
+  color: var(--button);
+}
+
+.back-to-products svg {
+  transition: transform 0.2s ease;
+}
+
+.back-to-products:hover svg {
+  transform: translateX(-4px);
+}

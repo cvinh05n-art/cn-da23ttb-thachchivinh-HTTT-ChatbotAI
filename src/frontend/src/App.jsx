@@ -1,21 +1,51 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
+import Login from './pages/Auth/Login';
+import Register from './pages/Auth/Register';
+
+import Profile from './pages/Profile/Profile';
+import Wishlist from './pages/Wishlist/Wishlist';
+
 import Home from './pages/Home/Home';
 import Products from './pages/Products/Products';
 import ProductDetail from './pages/ProductDetail/ProductDetail';
+import Cart from './pages/Cart/Cart';
+import Checkout from './pages/Checkout/Checkout';
+
+import MyOrders from './pages/Orders/MyOrders';
+import OrderDetail from './pages/Orders/OrderDetail';
+
+import AdminLayout from './pages/Admin/AdminLayout';
+import Dashboard from './pages/Admin/Dashboard';
+import ProductList from './pages/Admin/Products/ProductList';
+import ProductForm from './pages/Admin/Products/ProductForm';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-
         <Route path="/products" element={<Products />} />
+        <Route path="/products/:id" element={<ProductDetail />}/>
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
 
-        <Route
-          path="/products/:id"
-          element={<ProductDetail />}
-        />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/profile" element={<Profile />} />
+
+        <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/orders" element={<MyOrders />} />
+        <Route path="/orders/:orderCode" element={<OrderDetail />} />
+
+        <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<Dashboard />} />
+        <Route path="products" element={<ProductList />} />
+        <Route path="products/add" element={<ProductForm />} />
+        <Route path="products/edit/:id" element={<ProductForm />} />
+        </Route>
+
+        
       </Routes>
     </BrowserRouter>
   );

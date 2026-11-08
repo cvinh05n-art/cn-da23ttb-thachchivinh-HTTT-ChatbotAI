@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-
+import { ArrowLeft } from 'lucide-react';
 import {
   Heart,
   ShoppingBag,
@@ -104,6 +104,19 @@ function ProductDetail() {
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [favorite, setFavorite] = useState(false);
+
+// Kiểm tra sản phẩm đã được yêu thích chưa
+useEffect(() => {
+  if (!product) return;
+
+  const wishlist = JSON.parse(
+    localStorage.getItem('shoptt_wishlist') || '[]'
+  );
+
+  setFavorite(
+    wishlist.some((item) => item.id === product.id)
+  );
+}, [product]);
   const [notification, setNotification] = useState('');
 
   if (!product) {
@@ -114,18 +127,55 @@ function ProductDetail() {
       </div>
     );
   }
+  const toggleFavorite = () => {
+  const wishlist = JSON.parse(
+    localStorage.getItem('shoptt_wishlist') || '[]'
+  );
 
+  const exists = wishlist.some(
+    (item) => item.id === product.id
+  );
+
+  let updatedWishlist;
+
+  if (exists) {
+    updatedWishlist = wishlist.filter(
+      (item) => item.id !== product.id
+    );
+
+    setFavorite(false);
+    setNotification('Đã xóa khỏi danh sách yêu thích.');
+  } else {
+    const favoriteProduct = {
+      id: product.id,
+      name: product.name,
+      category: product.category,
+      price: product.price,
+      image: product.images[0]
+    };
+
+    updatedWishlist = [...wishlist, favoriteProduct];
+
+    setFavorite(true);
+    setNotification('Đã thêm vào danh sách yêu thích!');
+  }
+
+  localStorage.setItem(
+    'shoptt_wishlist',
+    JSON.stringify(updatedWishlist)
+  );
+
+  setTimeout(() => setNotification(''), 3000);
+};
   const addToCart = () => {
     if (!selectedSize) {
       setNotification('Vui lòng chọn kích thước sản phẩm.');
       return;
     }
-
     if (!selectedColor) {
       setNotification('Vui lòng chọn màu sắc sản phẩm.');
       return;
     }
-
     const cartItem = {
       productId: product.id,
       name: product.name,
@@ -135,49 +185,43 @@ function ProductDetail() {
       color: selectedColor,
       quantity
     };
-
     const currentCart = JSON.parse(
       localStorage.getItem('shoptt_cart') || '[]'
     );
-
     const existingItem = currentCart.find(
       (item) =>
         item.productId === cartItem.productId &&
         item.size === cartItem.size &&
         item.color === cartItem.color
     );
-
     if (existingItem) {
       existingItem.quantity += quantity;
     } else {
       currentCart.push(cartItem);
     }
-
     localStorage.setItem(
       'shoptt_cart',
       JSON.stringify(currentCart)
     );
-
     setNotification('Đã thêm sản phẩm vào giỏ hàng!');
-
     setTimeout(() => setNotification(''), 3000);
   };
-
   return (
     <div className="product-detail-page">
-
-      {/* BREADCRUMB */}
-      <div className="container">
-        <div className="detail-breadcrumb">
-          <Link to="/">Trang chủ</Link>
-          <ChevronRight size={14} />
-
-          <Link to="/products">Sản phẩm</Link>
-          <ChevronRight size={14} />
-
-          <span>{product.name}</span>
-        </div>
-      </div>
+     {/* BREADCRUMB */}
+<div className="container">
+  <Link to="/products" className="back-to-products">
+    <ArrowLeft size={16} />
+    <span>Quay lại danh sách sản phẩm</span>
+  </Link>
+  <div className="detail-breadcrumb">
+    <Link to="/">Trang chủ</Link>
+    <ChevronRight size={14} />
+    <Link to="/products">Sản phẩm</Link>
+    <ChevronRight size={14} />
+    <span>{product.name}</span>
+  </div>
+</div>
 
       {/* PRODUCT INFORMATION */}
       <section className="container detail-container">
@@ -323,16 +367,15 @@ function ProductDetail() {
             </button>
 
             <button
-              className={`detail-favorite ${
-                favorite ? 'active' : ''
-              }`}
-              onClick={() => setFavorite(!favorite)}
-            >
-              <Heart
-                size={20}
-                fill={favorite ? 'currentColor' : 'none'}
-              />
-            </button>
+            className={`detail-favorite ${
+               favorite ? 'active' : ''
+           }`}
+            onClick={toggleFavorite}
+               aria-label="Thêm hoặc xóa yêu thích">
+           <Heart
+               size={20}
+              fill={favorite ? 'currentColor' : 'none'} />
+</button>
 
           </div>
 

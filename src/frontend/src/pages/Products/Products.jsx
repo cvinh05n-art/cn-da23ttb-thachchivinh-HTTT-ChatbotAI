@@ -130,7 +130,13 @@ function Products() {
   const [sort, setSort] = useState('default');
   const [priceRange, setPriceRange] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
-  const [favorites, setFavorites] = useState([]);
+  const [favorites, setFavorites] = useState(() => {
+  const wishlist = JSON.parse(
+    localStorage.getItem('shoptt_wishlist') || '[]'
+  );
+
+  return wishlist.map((item) => item.id);
+});
 
   const productsPerPage = 8;
 
@@ -201,12 +207,48 @@ function Products() {
 
   // Thêm / bỏ yêu thích
   const toggleFavorite = (id) => {
-    setFavorites((prev) =>
-      prev.includes(id)
-        ? prev.filter((item) => item !== id)
-        : [...prev, id]
+  const wishlist = JSON.parse(
+    localStorage.getItem('shoptt_wishlist') || '[]'
+  );
+
+  const exists = wishlist.some(
+    (item) => item.id === id
+  );
+
+  let updatedWishlist;
+
+  if (exists) {
+    updatedWishlist = wishlist.filter(
+      (item) => item.id !== id
     );
-  };
+  } else {
+    const product = productData.find(
+      (item) => item.id === id
+    );
+
+    if (!product) return;
+
+    updatedWishlist = [
+      ...wishlist,
+      {
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        price: product.price,
+        image: product.image
+      }
+    ];
+  }
+
+  localStorage.setItem(
+    'shoptt_wishlist',
+    JSON.stringify(updatedWishlist)
+  );
+
+  setFavorites(
+    updatedWishlist.map((item) => item.id)
+  );
+};
 
   // Xóa bộ lọc
   const resetFilters = () => {
