@@ -1,3 +1,7 @@
+/* Vai trò tệp: Màn hình React cho khu vực Auth; component chịu trách nhiệm tải dữ liệu, xử lý tương tác và dựng giao diện.
+ * Các quy tắc bên dưới nhóm kiểu theo phần tử/trạng thái giao diện; breakpoint điều chỉnh bố cục trên màn hình khác nhau.
+ */
+
 .auth-page {
   min-height: 100vh;
   display: flex;

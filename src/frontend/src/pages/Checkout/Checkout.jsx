@@ -1,3 +1,6 @@
+// Vai trò tệp: Màn hình React cho khu vực Checkout; component chịu trách nhiệm tải dữ liệu, xử lý tương tác và dựng giao diện.
+// Component được dùng trong cây giao diện; các import bên dưới cung cấp dữ liệu, điều hướng và kiểu hiển thị.
+
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 

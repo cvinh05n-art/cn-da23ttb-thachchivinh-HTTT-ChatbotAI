@@ -1,4 +1,8 @@
-﻿GO
+/* Vai trò tệp: Kịch bản SQL mô tả/cài đặt cấu trúc và dữ liệu của cơ sở dữ liệu ShopTT.
+ * Các câu lệnh bên dưới tạo hoặc cập nhật cấu trúc/dữ liệu; chạy theo thứ tự xuất hiện trong môi trường SQL Server.
+ */
+
+GO
 CREATE TABLE Users (
     UserID INT IDENTITY(1,1) PRIMARY KEY,
     FullName NVARCHAR(100) NOT NULL,

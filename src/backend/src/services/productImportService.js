@@ -1,3 +1,6 @@
+// Vai trò tệp: Tầng nghiệp vụ nhập sản phẩm; ghi dữ liệu liên quan vào SQL và đảm bảo tính nhất quán theo transaction.
+// Luồng tổng quát: nhận/cấu hình dữ liệu -> thực hiện trách nhiệm mô-đun -> xuất kết quả cho phần còn lại của ứng dụng.
+
 const sql = require("mssql");
 const { poolPromise } = require("../config/database");
 

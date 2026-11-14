@@ -1,3 +1,6 @@
+// Vai trò tệp: Tầng truy cập dữ liệu sản phẩm: xây dựng truy vấn SQL và trả kết quả cho controller.
+// Luồng tổng quát: nhận/cấu hình dữ liệu -> thực hiện trách nhiệm mô-đun -> xuất kết quả cho phần còn lại của ứng dụng.
+
 const { poolPromise } = require("../config/database");
 const sql = require("mssql");
 

@@ -1,3 +1,6 @@
+// Vai trò tệp: Cấu hình middleware nhận tệp Excel tải lên trước khi gọi bộ phân tích dữ liệu.
+// Luồng tổng quát: nhận/cấu hình dữ liệu -> thực hiện trách nhiệm mô-đun -> xuất kết quả cho phần còn lại của ứng dụng.
+
 const multer = require("multer");
 
 const uploadExcel = multer({

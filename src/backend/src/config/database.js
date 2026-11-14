@@ -1,3 +1,6 @@
+// Vai trò tệp: Cấu hình kết nối SQL Server và chia sẻ pool kết nối cho các service.
+// Luồng tổng quát: nhận/cấu hình dữ liệu -> thực hiện trách nhiệm mô-đun -> xuất kết quả cho phần còn lại của ứng dụng.
+
 const sql = require("mssql");
 require("dotenv").config();
 

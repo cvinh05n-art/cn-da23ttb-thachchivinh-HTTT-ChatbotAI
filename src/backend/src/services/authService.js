@@ -1,3 +1,6 @@
+// Vai trò tệp: Tầng nghiệp vụ tài khoản: truy vấn SQL để đăng ký, đăng nhập và lấy hồ sơ người dùng.
+// Luồng tổng quát: nhận/cấu hình dữ liệu -> thực hiện trách nhiệm mô-đun -> xuất kết quả cho phần còn lại của ứng dụng.
+
 const { poolPromise } = require("../config/database");
 const bcrypt = require("bcryptjs");
 

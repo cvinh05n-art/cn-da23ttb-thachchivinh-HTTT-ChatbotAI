@@ -1,3 +1,6 @@
+// Vai trò tệp: Màn hình React cho khu vực Admin; component chịu trách nhiệm tải dữ liệu, xử lý tương tác và dựng giao diện.
+// Component được dùng trong cây giao diện; các import bên dưới cung cấp dữ liệu, điều hướng và kiểu hiển thị.
+
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {

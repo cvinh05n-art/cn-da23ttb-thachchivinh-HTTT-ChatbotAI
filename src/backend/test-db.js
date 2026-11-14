@@ -1,3 +1,6 @@
+// Vai trò tệp: Tiện ích kiểm tra nhanh khả năng kết nối và truy vấn SQL Server từ backend.
+// Luồng tổng quát: nhận/cấu hình dữ liệu -> thực hiện trách nhiệm mô-đun -> xuất kết quả cho phần còn lại của ứng dụng.
+
 require("dotenv").config();
 
 const sql = require("mssql");

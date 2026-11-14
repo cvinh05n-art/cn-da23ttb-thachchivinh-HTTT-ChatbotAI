@@ -1,3 +1,6 @@
+// Vai trò tệp: Thành phần gốc của giao diện, thiết lập cấu trúc ứng dụng và điều hướng giữa các trang.
+// Component được dùng trong cây giao diện; các import bên dưới cung cấp dữ liệu, điều hướng và kiểu hiển thị.
+
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import Login from './pages/Auth/Login';

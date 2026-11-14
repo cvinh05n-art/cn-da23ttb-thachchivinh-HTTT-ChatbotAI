@@ -1,3 +1,7 @@
+/* Vai trò tệp: Kịch bản SQL mô tả/cài đặt cấu trúc và dữ liệu của cơ sở dữ liệu ShopTT.
+ * Các câu lệnh bên dưới tạo hoặc cập nhật cấu trúc/dữ liệu; chạy theo thứ tự xuất hiện trong môi trường SQL Server.
+ */
+
 CREATE DATABASE ShopTT;
 USE ShopTT;
 GO

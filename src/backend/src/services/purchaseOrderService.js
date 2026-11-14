@@ -1,3 +1,6 @@
+// Vai trò tệp: Tầng nghiệp vụ phiếu nhập: đọc/ghi nhà cung cấp, chi tiết đơn, tồn kho và lịch sử giao dịch.
+// Luồng tổng quát: nhận/cấu hình dữ liệu -> thực hiện trách nhiệm mô-đun -> xuất kết quả cho phần còn lại của ứng dụng.
+
 const { poolPromise } = require("../config/database");
 const sql = require("mssql");
 

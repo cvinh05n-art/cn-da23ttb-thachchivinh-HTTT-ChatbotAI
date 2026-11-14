@@ -1,3 +1,6 @@
+// Vai trò tệp: Nhận yêu cầu xác thực, kiểm tra dữ liệu đầu vào, gọi dịch vụ tài khoản và định dạng phản hồi HTTP.
+// Luồng tổng quát: nhận/cấu hình dữ liệu -> thực hiện trách nhiệm mô-đun -> xuất kết quả cho phần còn lại của ứng dụng.
+
 const AuthService = require("../services/authService");
 const generateToken = require("../utils/generateToken");
 

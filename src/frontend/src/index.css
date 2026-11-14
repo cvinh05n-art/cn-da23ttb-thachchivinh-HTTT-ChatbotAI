@@ -1,3 +1,7 @@
+/* Vai trò tệp: Quy tắc giao diện dùng chung hoặc riêng cho khu vực tương ứng; các selector được áp dụng lên component React.
+ * Các quy tắc bên dưới nhóm kiểu theo phần tử/trạng thái giao diện; breakpoint điều chỉnh bố cục trên màn hình khác nhau.
+ */
+
 :root {
   --text: #6b6375;
   --text-h: #08060d;

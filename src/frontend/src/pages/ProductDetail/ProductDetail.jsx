@@ -1,3 +1,6 @@
+// Vai trò tệp: Màn hình React cho khu vực ProductDetail; component chịu trách nhiệm tải dữ liệu, xử lý tương tác và dựng giao diện.
+// Component được dùng trong cây giao diện; các import bên dưới cung cấp dữ liệu, điều hướng và kiểu hiển thị.
+
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Heart, ShoppingBag, Minus, Plus, Truck, ShieldCheck, RotateCcw, ChevronRight, Check } from 'lucide-react';

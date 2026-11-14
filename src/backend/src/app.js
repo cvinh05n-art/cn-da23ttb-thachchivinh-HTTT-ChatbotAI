@@ -1,3 +1,6 @@
+// Vai trò tệp: Lắp ráp ứng dụng Express: middleware chung, các nhóm endpoint, kiểm tra sức khỏe và xử lý lỗi.
+// Luồng tổng quát: nhận/cấu hình dữ liệu -> thực hiện trách nhiệm mô-đun -> xuất kết quả cho phần còn lại của ứng dụng.
+
 const express = require("express");
 const cors = require("cors");
 

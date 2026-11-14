@@ -1,3 +1,6 @@
+// Vai trò tệp: Xử lý endpoint truy vấn sản phẩm, kiểm tra tham số và chuyển truy vấn sang service.
+// Luồng tổng quát: nhận/cấu hình dữ liệu -> thực hiện trách nhiệm mô-đun -> xuất kết quả cho phần còn lại của ứng dụng.
+
 const ProductService = require("../services/productService");
 
 // GET ALL PRODUCTS

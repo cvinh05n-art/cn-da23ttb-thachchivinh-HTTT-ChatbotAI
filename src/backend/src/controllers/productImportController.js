@@ -1,3 +1,6 @@
+// Vai trò tệp: Xử lý nhập sản phẩm từ Excel/JSON; chuẩn hóa dòng, gom biến thể và chuyển dữ liệu cho dịch vụ nhập.
+// Luồng tổng quát: nhận/cấu hình dữ liệu -> thực hiện trách nhiệm mô-đun -> xuất kết quả cho phần còn lại của ứng dụng.
+
 const XLSX = require("xlsx");
 const ProductImportService = require("../services/productImportService");
 

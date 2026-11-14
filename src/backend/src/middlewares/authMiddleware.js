@@ -1,3 +1,6 @@
+// Vai trò tệp: Middleware xác thực token của yêu cầu và gắn danh tính người dùng đã xác thực vào request.
+// Luồng tổng quát: nhận/cấu hình dữ liệu -> thực hiện trách nhiệm mô-đun -> xuất kết quả cho phần còn lại của ứng dụng.
+
 const jwt = require("jsonwebtoken");
 
 const authMiddleware = (req, res, next) => {

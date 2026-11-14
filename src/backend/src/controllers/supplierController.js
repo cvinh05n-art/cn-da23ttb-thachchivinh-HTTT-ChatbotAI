@@ -1,3 +1,6 @@
+// Vai trò tệp: Xử lý các thao tác HTTP quản lý nhà cung cấp và kiểm tra dữ liệu trước khi gọi service.
+// Luồng tổng quát: nhận/cấu hình dữ liệu -> thực hiện trách nhiệm mô-đun -> xuất kết quả cho phần còn lại của ứng dụng.
+
 const SupplierService = require("../services/supplierService");
 
 exports.getAll = async (req, res) => {

@@ -1,3 +1,6 @@
+// Vai trò tệp: Xử lý yêu cầu HTTP cho danh sách, tạo phiếu nhập, thêm mặt hàng và xác nhận nhận hàng.
+// Luồng tổng quát: nhận/cấu hình dữ liệu -> thực hiện trách nhiệm mô-đun -> xuất kết quả cho phần còn lại của ứng dụng.
+
 const PurchaseOrderService = require("../services/purchaseOrderService");
 
 // =====================================

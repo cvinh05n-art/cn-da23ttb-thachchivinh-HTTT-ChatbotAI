@@ -1,3 +1,4 @@
+# Vai trò tệp: Các bước dựng image container và lệnh khởi chạy dịch vụ tương ứng.
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY package*.json ./
