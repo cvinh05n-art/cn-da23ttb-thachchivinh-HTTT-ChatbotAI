@@ -30,6 +30,7 @@ function Register() {
     e.preventDefault();
     setError('');
 
+    // Kiểm tra thông tin trước khi tạo tài khoản mới.
     if (form.password.length < 8) {
       setError('Mật khẩu phải có ít nhất 8 ký tự.');
       return;
@@ -47,6 +48,7 @@ function Register() {
       return;
     }
 
+    // Đọc danh sách tài khoản hiện có để kiểm tra email bị trùng.
     const users = JSON.parse(
       localStorage.getItem('shoptt_users') || '[]'
     );

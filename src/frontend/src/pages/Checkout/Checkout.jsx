@@ -33,6 +33,7 @@ function Checkout() {
   });
 
   useEffect(() => {
+    // Danh sách này được trang giỏ hàng lưu trước khi điều hướng tới checkout.
     const checkoutItems = JSON.parse(
       localStorage.getItem('shoptt_checkout') || '[]'
     );
@@ -52,6 +53,7 @@ function Checkout() {
   const total = subtotal + shippingFee;
 
   const handleChange = (e) => {
+    // Dùng thuộc tính name của input để cập nhật đúng trường trong form.
     setForm({
       ...form,
       [e.target.name]: e.target.value
@@ -66,6 +68,7 @@ function Checkout() {
       return;
     }
 
+    // Chuẩn hóa khoảng trắng trước khi kiểm tra số điện thoại Việt Nam.
     const phoneRegex = /^(0|\+84)[0-9]{9,10}$/;
 
     if (!phoneRegex.test(form.phone.replace(/\s/g, ''))) {
@@ -73,6 +76,7 @@ function Checkout() {
       return;
     }
 
+    // Tạo đơn hàng minh họa; dữ liệu hiện được lưu ở localStorage.
     const newOrder = {
       orderCode: 'ST' + Date.now(),
       customer: form,

@@ -1,424 +1,132 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import {
-  Heart,
-  ShoppingBag,
-  Minus,
-  Plus,
-  Truck,
-  ShieldCheck,
-  RotateCcw,
-  ChevronRight,
-  Check
-} from 'lucide-react';
-
+import { ArrowLeft, Heart, ShoppingBag, Minus, Plus, Truck, ShieldCheck, RotateCcw, ChevronRight, Check } from 'lucide-react';
+import api from '../../services/api';
 import './ProductDetail.css';
 
-// Dữ liệu minh họa frontend
-const productData = [
-  {
-    id: 1,
-    name: 'Áo sơ mi Linen',
-    category: 'Áo nữ',
-    price: 450000,
-    description:
-      'Áo sơ mi Linen mang phong cách tối giản, thanh lịch. Chất liệu nhẹ nhàng, thoáng mát, phù hợp cho nhiều dịp sử dụng.',
-    images: [
-      'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?w=900',
-      'https://images.unsplash.com/photo-1551163943-3f6a855d1153?w=900',
-      'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=900'
-    ],
-    sizes: ['S', 'M', 'L', 'XL'],
-    colors: [
-      { name: 'Trắng', code: '#F5F2E9' },
-      { name: 'Be', code: '#C8B69B' },
-      { name: 'Nâu', code: '#80634F' }
-    ]
-  },
-  {
-    id: 2,
-    name: 'Áo thun Basic',
-    category: 'Áo nam',
-    price: 250000,
-    description:
-      'Áo thun Basic với thiết kế đơn giản, dễ phối đồ và phù hợp với phong cách thường ngày.',
-    images: [
-      'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=900',
-      'https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=900'
-    ],
-    sizes: ['S', 'M', 'L', 'XL'],
-    colors: [
-      { name: 'Trắng', code: '#F5F2E9' },
-      { name: 'Đen', code: '#292929' },
-      { name: 'Xám', code: '#999999' }
-    ]
-  },
-  {
-    id: 3,
-    name: 'Quần dài Casual',
-    category: 'Quần nam',
-    price: 520000,
-    description:
-      'Quần dài Casual có kiểu dáng hiện đại, dễ kết hợp với áo thun và áo sơ mi.',
-    images: [
-      'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=900'
-    ],
-    sizes: ['S', 'M', 'L', 'XL'],
-    colors: [
-      { name: 'Đen', code: '#292929' },
-      { name: 'Be', code: '#C8B69B' }
-    ]
-  },
-  {
-    id: 4,
-    name: 'Váy Minimal',
-    category: 'Váy nữ',
-    price: 590000,
-    description:
-      'Váy Minimal mang vẻ đẹp tinh tế, thanh lịch với kiểu dáng nhẹ nhàng và hiện đại.',
-    images: [
-      'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=900'
-    ],
-    sizes: ['S', 'M', 'L'],
-    colors: [
-      { name: 'Trắng', code: '#F5F2E9' },
-      { name: 'Đen', code: '#292929' }
-    ]
-  }
-];
+const FALLBACK_IMAGE = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1100"><rect width="100%" height="100%" fill="#eeeae4"/><text x="50%" y="48%" text-anchor="middle" font-family="Arial" font-size="42" fill="#82715f">SHOPTT</text><text x="50%" y="54%" text-anchor="middle" font-family="Arial" font-size="25" fill="#82715f">Chưa có hình ảnh</text></svg>'
+);
+const formatPrice = (price) => Number(price || 0).toLocaleString('vi-VN') + 'đ';
 
-function formatPrice(price) {
-  return price.toLocaleString('vi-VN') + 'đ';
-}
-
-function ProductDetail() {
+export default function ProductDetail() {
   const { id } = useParams();
-
-  const product = productData.find(
-    (item) => item.id === Number(id)
-  );
-
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedSize, setSelectedSize] = useState('');
-  const [selectedColor, setSelectedColor] = useState('');
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedColor, setSelectedColor] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [favorite, setFavorite] = useState(false);
-
-// Kiểm tra sản phẩm đã được yêu thích chưa
-useEffect(() => {
-  if (!product) return;
-
-  const wishlist = JSON.parse(
-    localStorage.getItem('shoptt_wishlist') || '[]'
-  );
-
-  setFavorite(
-    wishlist.some((item) => item.id === product.id)
-  );
-}, [product]);
   const [notification, setNotification] = useState('');
 
-  if (!product) {
-    return (
-      <div className="product-not-found">
-        <h2>Không tìm thấy sản phẩm</h2>
-        <Link to="/products">Quay lại danh sách sản phẩm</Link>
-      </div>
-    );
-  }
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setProduct(null);
+    setError('');
+    api.get(`/products/${id}`)
+      .then(({ data }) => {
+        if (active && data?.success && data.data) setProduct(data.data);
+        else if (active) setError('Không tìm thấy sản phẩm.');
+      })
+      .catch((err) => {
+        console.error('Lỗi tải chi tiết sản phẩm:', err);
+        if (active) setError(err.response?.data?.message || 'Không thể tải thông tin sản phẩm.');
+      })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [id]);
+
+  const images = useMemo(() => {
+    const list = (product?.Images || []).map((x) => x.ImageURL).filter(Boolean);
+    return list.length ? list : [FALLBACK_IMAGE];
+  }, [product]);
+  const variants = product?.Variants || [];
+  const sizes = [...new Map(variants.filter(v => v.Size).map(v => [v.Size.SizeID, v.Size])).values()];
+  const colors = [...new Map(variants.filter(v => v.Color).map(v => [v.Color.ColorID, v.Color])).values()];
+  const selectedVariant = variants.find(v =>
+    (!sizes.length || v.Size?.SizeID === selectedSize) &&
+    (!colors.length || v.Color?.ColorID === selectedColor)
+  );
+  const price = selectedVariant?.Price ?? product?.BasePrice ?? 0;
+
+  useEffect(() => {
+    if (!product) return;
+    const saved = JSON.parse(localStorage.getItem('shoptt_wishlist') || '[]');
+    setFavorite(saved.some(item => Number(item.id) === Number(product.ProductID)));
+  }, [product]);
+
+  const notify = (message) => {
+    setNotification(message);
+    window.setTimeout(() => setNotification(''), 2800);
+  };
+
   const toggleFavorite = () => {
-  const wishlist = JSON.parse(
-    localStorage.getItem('shoptt_wishlist') || '[]'
-  );
+    const saved = JSON.parse(localStorage.getItem('shoptt_wishlist') || '[]');
+    const exists = saved.some(item => Number(item.id) === Number(product.ProductID));
+    const updated = exists
+      ? saved.filter(item => Number(item.id) !== Number(product.ProductID))
+      : [...saved, { id: product.ProductID, name: product.ProductName, category: product.Category?.CategoryName || '', price: Number(product.BasePrice), image: images[0] }];
+    localStorage.setItem('shoptt_wishlist', JSON.stringify(updated));
+    setFavorite(!exists);
+    notify(exists ? 'Đã xóa khỏi danh sách yêu thích.' : 'Đã thêm vào danh sách yêu thích!');
+  };
 
-  const exists = wishlist.some(
-    (item) => item.id === product.id
-  );
-
-  let updatedWishlist;
-
-  if (exists) {
-    updatedWishlist = wishlist.filter(
-      (item) => item.id !== product.id
-    );
-
-    setFavorite(false);
-    setNotification('Đã xóa khỏi danh sách yêu thích.');
-  } else {
-    const favoriteProduct = {
-      id: product.id,
-      name: product.name,
-      category: product.category,
-      price: product.price,
-      image: product.images[0]
-    };
-
-    updatedWishlist = [...wishlist, favoriteProduct];
-
-    setFavorite(true);
-    setNotification('Đã thêm vào danh sách yêu thích!');
-  }
-
-  localStorage.setItem(
-    'shoptt_wishlist',
-    JSON.stringify(updatedWishlist)
-  );
-
-  setTimeout(() => setNotification(''), 3000);
-};
   const addToCart = () => {
-    if (!selectedSize) {
-      setNotification('Vui lòng chọn kích thước sản phẩm.');
-      return;
-    }
-    if (!selectedColor) {
-      setNotification('Vui lòng chọn màu sắc sản phẩm.');
-      return;
-    }
+    if (sizes.length && !selectedSize) return notify('Vui lòng chọn kích thước.');
+    if (colors.length && !selectedColor) return notify('Vui lòng chọn màu sắc.');
+    if (variants.length && !selectedVariant) return notify('Biến thể này hiện không khả dụng.');
     const cartItem = {
-      productId: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.images[0],
-      size: selectedSize,
-      color: selectedColor,
+      productId: product.ProductID,
+      variantId: selectedVariant?.VariantID ?? null,
+      name: product.ProductName,
+      price: Number(price),
+      image: images[0],
+      size: selectedVariant?.Size?.SizeName || 'Mặc định',
+      color: selectedVariant?.Color?.ColorName || 'Mặc định',
       quantity
     };
-    const currentCart = JSON.parse(
-      localStorage.getItem('shoptt_cart') || '[]'
-    );
-    const existingItem = currentCart.find(
-      (item) =>
-        item.productId === cartItem.productId &&
-        item.size === cartItem.size &&
-        item.color === cartItem.color
-    );
-    if (existingItem) {
-      existingItem.quantity += quantity;
-    } else {
-      currentCart.push(cartItem);
-    }
-    localStorage.setItem(
-      'shoptt_cart',
-      JSON.stringify(currentCart)
-    );
-    setNotification('Đã thêm sản phẩm vào giỏ hàng!');
-    setTimeout(() => setNotification(''), 3000);
+    const cart = JSON.parse(localStorage.getItem('shoptt_cart') || '[]');
+    const found = cart.find(item => item.productId === cartItem.productId && item.variantId === cartItem.variantId && item.size === cartItem.size && item.color === cartItem.color);
+    if (found) found.quantity += quantity;
+    else cart.push(cartItem);
+    localStorage.setItem('shoptt_cart', JSON.stringify(cart));
+    notify('Đã thêm sản phẩm vào giỏ hàng!');
   };
+
+  if (loading) return <div className="product-not-found"><p>Đang tải thông tin sản phẩm...</p></div>;
+  if (error || !product) return <div className="product-not-found"><h2>{error || 'Không tìm thấy sản phẩm'}</h2><Link to="/products">Quay lại danh sách sản phẩm</Link></div>;
+
   return (
     <div className="product-detail-page">
-     {/* BREADCRUMB */}
-<div className="container">
-  <Link to="/products" className="back-to-products">
-    <ArrowLeft size={16} />
-    <span>Quay lại danh sách sản phẩm</span>
-  </Link>
-  <div className="detail-breadcrumb">
-    <Link to="/">Trang chủ</Link>
-    <ChevronRight size={14} />
-    <Link to="/products">Sản phẩm</Link>
-    <ChevronRight size={14} />
-    <span>{product.name}</span>
-  </div>
-</div>
-
-      {/* PRODUCT INFORMATION */}
+      <div className="container">
+        <Link to="/products" className="back-to-products"><ArrowLeft size={16} /><span>Quay lại danh sách sản phẩm</span></Link>
+        <div className="detail-breadcrumb"><Link to="/">Trang chủ</Link><ChevronRight size={14}/><Link to="/products">Sản phẩm</Link><ChevronRight size={14}/><span>{product.ProductName}</span></div>
+      </div>
       <section className="container detail-container">
-
-        {/* IMAGE GALLERY */}
         <div className="detail-gallery">
-
-          <div className="detail-main-image">
-            <img
-              src={product.images[selectedImage]}
-              alt={product.name}
-            />
-          </div>
-
-          <div className="detail-thumbnails">
-            {product.images.map((image, index) => (
-              <button
-                key={index}
-                className={
-                  selectedImage === index ? 'active' : ''
-                }
-                onClick={() => setSelectedImage(index)}
-              >
-                <img src={image} alt={`${product.name} ${index + 1}`} />
-              </button>
-            ))}
-          </div>
-
+          <div className="detail-main-image"><img src={images[selectedImage] || FALLBACK_IMAGE} alt={product.ProductName} onError={(e) => { e.currentTarget.src = FALLBACK_IMAGE; }}/></div>
+          {images.length > 1 && <div className="detail-thumbnails">{images.map((image, index) => <button key={index} className={selectedImage === index ? 'active' : ''} onClick={() => setSelectedImage(index)}><img src={image} alt={`${product.ProductName} ${index + 1}`} /></button>)}</div>}
         </div>
-
-        {/* PRODUCT DETAILS */}
         <div className="detail-information">
-
-          <span className="detail-category">
-            {product.category}
-          </span>
-
-          <h1>{product.name}</h1>
-
-          <div className="detail-price">
-            {formatPrice(product.price)}
-          </div>
-
-          <div className="detail-divider"></div>
-
-          <div className="detail-description">
-            <h3>Mô tả sản phẩm</h3>
-            <p>{product.description}</p>
-          </div>
-
-          {/* COLOR */}
-          <div className="detail-option">
-            <div className="option-title">
-              <h3>Màu sắc</h3>
-              <span>{selectedColor || 'Chưa chọn'}</span>
-            </div>
-
-            <div className="color-list">
-              {product.colors.map((color) => (
-                <button
-                  key={color.name}
-                  className={
-                    selectedColor === color.name ? 'active' : ''
-                  }
-                  style={{ backgroundColor: color.code }}
-                  title={color.name}
-                  onClick={() => setSelectedColor(color.name)}
-                >
-                  {selectedColor === color.name && (
-                    <Check
-                      size={16}
-                      color={
-                        color.name === 'Trắng' ||
-                        color.name === 'Be'
-                          ? '#292929'
-                          : '#FFFFFF'
-                      }
-                    />
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* SIZE */}
-          <div className="detail-option">
-            <div className="option-title">
-              <h3>Kích thước</h3>
-              <button className="size-guide">
-                Hướng dẫn chọn size
-              </button>
-            </div>
-
-            <div className="size-list">
-              {product.sizes.map((size) => (
-                <button
-                  key={size}
-                  className={
-                    selectedSize === size ? 'active' : ''
-                  }
-                  onClick={() => setSelectedSize(size)}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* QUANTITY */}
-          <div className="detail-option">
-            <h3>Số lượng</h3>
-
-            <div className="quantity-control">
-              <button
-                onClick={() =>
-                  setQuantity((prev) => Math.max(1, prev - 1))
-                }
-              >
-                <Minus size={15} />
-              </button>
-
-              <span>{quantity}</span>
-
-              <button
-                onClick={() =>
-                  setQuantity((prev) => prev + 1)
-                }
-              >
-                <Plus size={15} />
-              </button>
-            </div>
-          </div>
-
-          {/* ACTIONS */}
-          <div className="detail-actions">
-
-            <button
-              className="add-cart-button"
-              onClick={addToCart}
-            >
-              <ShoppingBag size={19} />
-              Thêm vào giỏ hàng
-            </button>
-
-            <button
-            className={`detail-favorite ${
-               favorite ? 'active' : ''
-           }`}
-            onClick={toggleFavorite}
-               aria-label="Thêm hoặc xóa yêu thích">
-           <Heart
-               size={20}
-              fill={favorite ? 'currentColor' : 'none'} />
-</button>
-
-          </div>
-
-          {notification && (
-            <div className="detail-notification">
-              {notification}
-            </div>
-          )}
-
-          {/* BENEFITS */}
-          <div className="detail-benefits">
-
-            <div>
-              <Truck size={20} />
-              <span>Giao hàng toàn quốc</span>
-            </div>
-
-            <div>
-              <ShieldCheck size={20} />
-              <span>Cam kết chất lượng</span>
-            </div>
-
-            <div>
-              <RotateCcw size={20} />
-              <span>Hỗ trợ đổi trả</span>
-            </div>
-
-          </div>
-
-        </div>
-
-      </section>
-
-      {/* DESCRIPTION SECTION */}
-      <section className="detail-extra">
-        <div className="container">
-          <h2>Thông tin sản phẩm</h2>
-          <p>{product.description}</p>
+          <span className="detail-category">{product.Category?.CategoryName || 'Sản phẩm'}</span>
+          <h1>{product.ProductName}</h1>
+          {product.Brand?.BrandName && <p>{product.Brand.BrandName}</p>}
+          <div className="detail-price">{formatPrice(price)}</div>
+          <div className="detail-divider" />
+          <div className="detail-description"><h3>Mô tả sản phẩm</h3><p>{product.Description || product.ShortDescription || 'Thông tin mô tả đang được cập nhật.'}</p></div>
+          {colors.length > 0 && <div className="detail-option"><div className="option-title"><h3>Màu sắc</h3><span>{colors.find(c => c.ColorID === selectedColor)?.ColorName || 'Chưa chọn'}</span></div><div className="color-list">{colors.map(color => <button key={color.ColorID} title={color.ColorName} aria-label={color.ColorName} className={selectedColor === color.ColorID ? 'active' : ''} style={{backgroundColor: color.ColorCode || '#ccc'}} onClick={() => setSelectedColor(color.ColorID)}>{selectedColor === color.ColorID && <Check size={16}/>}</button>)}</div></div>}
+          {sizes.length > 0 && <div className="detail-option"><div className="option-title"><h3>Kích thước</h3></div><div className="size-list">{sizes.map(size => <button key={size.SizeID} className={selectedSize === size.SizeID ? 'active' : ''} onClick={() => setSelectedSize(size.SizeID)}>{size.SizeName}</button>)}</div></div>}
+          {variants.length === 0 && <p className="detail-description">Sản phẩm chưa khai báo biến thể kích thước/màu sắc.</p>}
+          <div className="detail-option"><h3>Số lượng</h3><div className="quantity-control"><button onClick={() => setQuantity(q => Math.max(1, q - 1))}><Minus size={15}/></button><span>{quantity}</span><button onClick={() => setQuantity(q => q + 1)}><Plus size={15}/></button></div></div>
+          <div className="detail-actions"><button className="add-cart-button" onClick={addToCart}><ShoppingBag size={19}/>Thêm vào giỏ hàng</button><button className={`detail-favorite ${favorite ? 'active' : ''}`} onClick={toggleFavorite} aria-label="Yêu thích"><Heart size={20} fill={favorite ? 'currentColor' : 'none'}/></button></div>
+          {notification && <div className="detail-notification">{notification}</div>}
+          <div className="detail-benefits"><div><Truck size={20}/><span>Giao hàng toàn quốc</span></div><div><ShieldCheck size={20}/><span>Cam kết chất lượng</span></div><div><RotateCcw size={20}/><span>Hỗ trợ đổi trả</span></div></div>
         </div>
       </section>
-
+      <section className="detail-extra"><div className="container"><h2>Thông tin sản phẩm</h2><p>{product.Description || product.ShortDescription || 'Thông tin mô tả đang được cập nhật.'}</p></div></section>
     </div>
   );
 }
-
-export default ProductDetail;

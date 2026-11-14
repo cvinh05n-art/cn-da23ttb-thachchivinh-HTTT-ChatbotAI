@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import api from '../../services/api';
 import {
   Search,
   UserRound,
@@ -10,66 +11,49 @@ import {
   MessageCircle,
   X,
   Send,
-  Sparkles,
-  ChevronRight
+  Sparkles
 } from 'lucide-react';
 
 import './Home.css';
 
 
+const FALLBACK_IMAGE = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="750"><rect width="100%" height="100%" fill="#eeeae4"/><text x="50%" y="48%" text-anchor="middle" font-family="Arial" font-size="36" fill="#82715f">SHOPTT</text><text x="50%" y="54%" text-anchor="middle" font-family="Arial" font-size="20" fill="#82715f">Chưa có hình ảnh</text></svg>'
+);
+const formatPrice = (price) => Number(price || 0).toLocaleString('vi-VN') + 'đ';
 
-const products = [
-  {
-    id: 1,
-    name: 'Áo sơ mi Linen',
-    category: 'Áo nữ',
-    price: '450.000đ',
-    image: 'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?w=600'
-  },
-  {
-    id: 2,
-    name: 'Áo thun Basic',
-    category: 'Áo nam',
-    price: '250.000đ',
-    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600'
-  },
-  {
-    id: 3,
-    name: 'Quần dài Casual',
-    category: 'Quần nam',
-    price: '520.000đ',
-    image: 'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=600'
-  },
-  {
-    id: 4,
-    name: 'Váy Minimal',
-    category: 'Váy nữ',
-    price: '590.000đ',
-    image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600'
-  }
-];
 
-const categories = [
-  {
-    name: 'Áo nam',
-    image: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600'
-  },
-  {
-    name: 'Áo nữ',
-    image: 'https://images.unsplash.com/photo-1551163943-3f6a855d1153?w=600'
-  },
-  {
-    name: 'Quần',
-    image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=600'
-  },
-  {
-    name: 'Phụ kiện',
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600'
-  }
-];
 
 function Home() {
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState('');
   const [chatOpen, setChatOpen] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    api.get('/products')
+      .then(({ data }) => {
+        if (!active) return;
+        const rows = Array.isArray(data?.data) ? data.data : [];
+        setProducts(rows
+          .filter((p) => String(p.Status || '').toLowerCase() === 'active')
+          .slice(0, 4)
+          .map((p) => ({
+            id: p.ProductID,
+            name: p.ProductName,
+            category: p.CategoryName || 'Sản phẩm',
+            price: Number(p.BasePrice || 0),
+            image: p.ImageURL || FALLBACK_IMAGE,
+          })));
+      })
+      .catch((error) => {
+        console.error('Không tải được sản phẩm nổi bật:', error);
+        if (active) setProductsError('Không thể tải sản phẩm. Vui lòng thử lại.');
+      })
+      .finally(() => { if (active) setProductsLoading(false); });
+    return () => { active = false; };
+  }, []);
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState([
     {
@@ -118,7 +102,7 @@ function Home() {
          <nav className="navigation">
              <a href="/">Trang chủ</a>
              <a href="/products">Sản phẩm</a>
-            <a href="/#categories">Danh mục</a>
+            <a href="/#products">Sản phẩm</a>
             <a href="/#about">Giới thiệu</a>
             </nav>
 
@@ -192,37 +176,6 @@ function Home() {
         </div>
       </section>
 
-      {/* CATEGORIES */}
-      <section className="section" id="categories">
-        <div className="container">
-
-          <div className="section-heading">
-            <div>
-              <h2>Danh mục nổi bật</h2>
-              <p>Khám phá những lựa chọn dành cho bạn.</p>
-            </div>
-
-            <a href="#products" className="text-link">
-              Xem tất cả <ArrowRight size={16} />
-            </a>
-          </div>
-
-          <div className="category-grid">
-            {categories.map((category, index) => (
-              <a href="#products" className="category-card" key={index}>
-                <img src={category.image} alt={category.name} />
-
-                <div className="category-overlay">
-                  <h3>{category.name}</h3>
-                  <ChevronRight size={18} />
-                </div>
-              </a>
-            ))}
-          </div>
-
-        </div>
-      </section>
-
       {/* PRODUCTS */}
       <section className="section product-section" id="products">
         <div className="container">
@@ -238,29 +191,33 @@ function Home() {
             </a>
           </div>
 
-          <div className="product-grid">
-            {products.map((product) => (
-              <div className="product-card" key={product.id}>
-
-                <div className="product-image">
-                  <img src={product.image} alt={product.name} />
-
-                  <button className="favorite-button" aria-label="Yêu thích">
-                    <Heart size={19} />
-                  </button>
-
-                  <span className="product-label">NEW</span>
-                </div>
-
-                <div className="product-info">
-                  <span>{product.category}</span>
-                  <h3>{product.name}</h3>
-                  <p>{product.price}</p>
-                </div>
-
-              </div>
-            ))}
-          </div>
+          {productsLoading ? (
+            <p>Đang tải sản phẩm nổi bật...</p>
+          ) : productsError ? (
+            <p>{productsError}</p>
+          ) : products.length === 0 ? (
+            <p>Chưa có sản phẩm đang kinh doanh.</p>
+          ) : (
+            <div className="product-grid">
+              {products.map((product) => (
+                <Link to={`/products/${product.id}`} className="product-card" key={product.id}>
+                  <div className="product-image">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      onError={(e) => { e.currentTarget.src = FALLBACK_IMAGE; }}
+                    />
+                    <span className="product-label">NEW</span>
+                  </div>
+                  <div className="product-info">
+                    <span>{product.category}</span>
+                    <h3>{product.name}</h3>
+                    <p>{formatPrice(product.price)}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
 
         </div>
       </section>
@@ -336,7 +293,7 @@ function Home() {
           <div>
             <h3>Khám phá</h3>
             <a href="#products">Sản phẩm</a>
-            <a href="#categories">Danh mục</a>
+            <a href="#products">Sản phẩm</a>
             <a href="#about">Giới thiệu</a>
           </div>
 

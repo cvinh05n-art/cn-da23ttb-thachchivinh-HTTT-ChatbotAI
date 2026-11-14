@@ -23,6 +23,7 @@ function Cart() {
   const [selectedItems, setSelectedItems] = useState([]);
 
   useEffect(() => {
+    // Khôi phục giỏ hàng từ trình duyệt và mặc định chọn tất cả sản phẩm.
     const savedCart = JSON.parse(
       localStorage.getItem('shoptt_cart') || '[]'
     );
@@ -35,6 +36,7 @@ function Cart() {
   }, []);
 
   const saveCart = (items) => {
+    // Cập nhật giao diện đồng thời lưu thay đổi để giữ giỏ hàng sau khi tải lại.
     setCartItems(items);
 
     localStorage.setItem(
@@ -109,6 +111,7 @@ function Cart() {
       return;
     }
 
+    // Chỉ chuyển những mặt hàng đã chọn sang bước thanh toán.
     localStorage.setItem(
       'shoptt_checkout',
       JSON.stringify(selectedProducts)

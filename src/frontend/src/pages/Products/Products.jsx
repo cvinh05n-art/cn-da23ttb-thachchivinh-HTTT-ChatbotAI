@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import api from '../../services/api';
 import {
   Search,
   SlidersHorizontal,
@@ -12,119 +13,42 @@ import {
 
 import './Products.css';
 
-// Dữ liệu mẫu frontend
-const productData = [
-  {
-    id: 1,
-    name: 'Áo sơ mi Linen',
-    category: 'Áo nữ',
-    price: 450000,
-    image: 'https://images.unsplash.com/photo-1598554747436-c9293d6a588f?w=600',
-    date: '2026-10-25'
-  },
-  {
-    id: 2,
-    name: 'Áo thun Basic',
-    category: 'Áo nam',
-    price: 250000,
-    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600',
-    date: '2026-10-28'
-  },
-  {
-    id: 3,
-    name: 'Quần dài Casual',
-    category: 'Quần nam',
-    price: 520000,
-    image: 'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=600',
-    date: '2026-10-20'
-  },
-  {
-    id: 4,
-    name: 'Váy Minimal',
-    category: 'Váy nữ',
-    price: 590000,
-    image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600',
-    date: '2026-10-29'
-  },
-  {
-    id: 5,
-    name: 'Áo Polo Classic',
-    category: 'Áo nam',
-    price: 390000,
-    image: 'https://images.unsplash.com/photo-1625910513413-5fc45e2e7c9c?w=600',
-    date: '2026-10-27'
-  },
-  {
-    id: 6,
-    name: 'Áo khoác Minimal',
-    category: 'Áo nữ',
-    price: 750000,
-    image: 'https://images.unsplash.com/photo-1548126032-079a0fb0099d?w=600',
-    date: '2026-10-18'
-  },
-  {
-    id: 7,
-    name: 'Quần Jean Basic',
-    category: 'Quần nam',
-    price: 490000,
-    image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?w=600',
-    date: '2026-10-23'
-  },
-  {
-    id: 8,
-    name: 'Váy thanh lịch',
-    category: 'Váy nữ',
-    price: 680000,
-    image: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=600',
-    date: '2026-10-30'
-  },
-  {
-    id: 9,
-    name: 'Áo thun Oversize',
-    category: 'Áo nam',
-    price: 320000,
-    image: 'https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=600',
-    date: '2026-10-15'
-  },
-  {
-    id: 10,
-    name: 'Áo kiểu nữ',
-    category: 'Áo nữ',
-    price: 420000,
-    image: 'https://images.unsplash.com/photo-1564257577-1c4e5a9b4f4e?w=600',
-    date: '2026-10-22'
-  },
-  {
-    id: 11,
-    name: 'Quần Short',
-    category: 'Quần nam',
-    price: 280000,
-    image: 'https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=600',
-    date: '2026-10-19'
-  },
-  {
-    id: 12,
-    name: 'Váy Vintage',
-    category: 'Váy nữ',
-    price: 620000,
-    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600',
-    date: '2026-10-26'
-  }
-];
-
-const categories = [
-  'Tất cả',
-  'Áo nam',
-  'Áo nữ',
-  'Quần nam',
-  'Váy nữ'
-];
-
 function formatPrice(price) {
   return price.toLocaleString('vi-VN') + 'đ';
 }
 
 function Products() {
+  const [products, setProducts] = useState([]);
+  const categories = useMemo(() => ['Tất cả', ...new Set(products.map((p) => p.category).filter(Boolean))], [products]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+
+  useEffect(() => {
+    let mounted = true;
+    api.get('/products')
+      .then(({ data }) => {
+        if (!mounted) return;
+        const rows = Array.isArray(data?.data) ? data.data : [];
+        const mapped = rows
+          .filter((p) => String(p.Status || '').toLowerCase() === 'active')
+          .map((p) => ({
+            id: p.ProductID,
+            name: p.ProductName,
+            category: p.CategoryName || 'Khác',
+            price: Number(p.BasePrice || 0),
+            image: p.ImageURL || 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="750"><rect width="100%" height="100%" fill="#eeeae4"/><text x="50%" y="48%" text-anchor="middle" font-family="Arial" font-size="28" fill="#82715f">SHOPTT</text><text x="50%" y="54%" text-anchor="middle" font-family="Arial" font-size="18" fill="#82715f">Chưa có hình ảnh</text></svg>'),
+            date: p.CreatedAt || new Date().toISOString()
+          }));
+        setProducts(mapped);
+      })
+      .catch((error) => {
+        console.error('Không tải được sản phẩm:', error);
+        if (mounted) setLoadError('Không thể tải sản phẩm từ máy chủ.');
+      })
+      .finally(() => { if (mounted) setLoading(false); });
+    return () => { mounted = false; };
+  }, []);
+
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('Tất cả');
   const [sort, setSort] = useState('default');
@@ -140,9 +64,9 @@ function Products() {
 
   const productsPerPage = 8;
 
-  // Lọc và sắp xếp sản phẩm
+  // Tính danh sách theo từ khóa, danh mục, khoảng giá và cách sắp xếp.
   const filteredProducts = useMemo(() => {
-    let result = [...productData];
+    let result = [...products];
 
     // Tìm kiếm
     if (search.trim()) {
@@ -185,7 +109,7 @@ function Products() {
     }
 
     return result;
-  }, [search, category, priceRange, sort]);
+  }, [products, search, category, priceRange, sort]);
 
   // Phân trang
   const totalPages = Math.ceil(
@@ -194,6 +118,7 @@ function Products() {
 
   const startIndex = (currentPage - 1) * productsPerPage;
 
+  // Chỉ lấy nhóm sản phẩm thuộc trang hiện tại để phân trang.
   const displayedProducts = filteredProducts.slice(
     startIndex,
     startIndex + productsPerPage
@@ -222,7 +147,7 @@ function Products() {
       (item) => item.id !== id
     );
   } else {
-    const product = productData.find(
+    const product = products.find(
       (item) => item.id === id
     );
 
@@ -400,7 +325,11 @@ function Products() {
               </span>
             </div>
 
-            {displayedProducts.length > 0 ? (
+            {loading ? (
+              <div className="empty-products"><p>Đang tải sản phẩm...</p></div>
+            ) : loadError && products.length === 0 ? (
+              <div className="empty-products"><p>{loadError}</p></div>
+            ) : displayedProducts.length > 0 ? (
               <div className="products-grid">
 
                 {displayedProducts.map((product) => (

@@ -23,6 +23,7 @@ import ProductForm from './pages/Admin/Products/ProductForm';
 function App() {
   return (
     <BrowserRouter>
+      {/* Khai báo các URL của cửa hàng và khu vực quản trị. */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<Products />} />
@@ -38,6 +39,7 @@ function App() {
         <Route path="/orders" element={<MyOrders />} />
         <Route path="/orders/:orderCode" element={<OrderDetail />} />
 
+        {/* Các trang con quản trị được hiển thị bên trong AdminLayout. */}
         <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="products" element={<ProductList />} />

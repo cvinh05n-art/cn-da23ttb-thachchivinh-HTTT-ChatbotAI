@@ -26,6 +26,7 @@ function Login() {
     e.preventDefault();
     setError('');
 
+    // Tìm tài khoản đã đăng ký trong dữ liệu lưu cục bộ của trình duyệt.
     const users = JSON.parse(
       localStorage.getItem('shoptt_users') || '[]'
     );
@@ -41,6 +42,7 @@ function Login() {
       return;
     }
 
+    // Không lưu mật khẩu vào phiên đăng nhập hiện tại.
     const { password, ...safeUser } = user;
 
     localStorage.setItem(
